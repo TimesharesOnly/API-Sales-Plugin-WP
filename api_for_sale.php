@@ -40,42 +40,24 @@ function build_meta_query() {
     // Get saved filters from the options table
     $saved_filters = get_option('property_filters', array());
 
-    $meta_query = array(
-        'relation' => 'AND',
-        array(
-            'key' => 'fave_partner-id',
-            'value' => array('a001U00000ljyLOQAY', 'a001U00000ljyLJQAY'),
-            'compare' => 'IN',
-        ),
+    // Initialize the main meta_query array
+    $meta_query = array('relation' => 'AND'); // Default relation
+
+    // Special case for 'fave_partner-id'
+    $meta_query[] = array(
+        'key' => 'fave_partner-id',
+        'value' => array('a001U00000ljyLOQAY', 'a001U00000ljyLJQAY'),
+        'compare' => 'IN',
     );
 
-    // Add saved filters to the meta query
+    // Iterate over each saved filter
     foreach ($saved_filters as $filter) {
-        if (isset($filter['nested_filter'])) {
-            $nested_filter = $filter['nested_filter'];
-            $query = array(
-                'relation' => $nested_filter['relation'],
-                array(
-                    'key' => $filter['meta_key'],
-                    'value' => $filter['meta_value'],
-                    'compare' => $filter['compare_operator'],
-                ),
-                array(
-                    'key' => $nested_filter['meta_key'],
-                    'value' => $nested_filter['meta_value'],
-                    'compare' => $nested_filter['compare_operator'],
-                ),
-            );
-            $meta_query[] = $query;
-        } elseif ($filter['meta_key'] == 'fide_brand') {
+        // Special handling for 'fide_brand'
+        if ($filter['meta_key'] == 'fide_brand') {
             $brand_title = $filter['meta_value'];
-
-            // Get brand ID by title
             $brand_post = get_page_by_title($brand_title, OBJECT, 'cpt_brand');
             if ($brand_post) {
                 $brand_id = $brand_post->ID;
-
-                // Get resort posts with the specified brand ID
                 $resort_posts = get_posts(array(
                     'post_type' => 'cpt_resort',
                     'meta_key' => 'fide_brand',
@@ -83,7 +65,6 @@ function build_meta_query() {
                     'posts_per_page' => -1,
                 ));
 
-                // Get resort IDs
                 $resort_ids = array();
                 foreach ($resort_posts as $resort_post) {
                     $resort_ids[] = $resort_post->ID;
@@ -97,10 +78,9 @@ function build_meta_query() {
                     );
                 }
             }
+        // Special handling for 'fide_resort'
         } elseif ($filter['meta_key'] == 'fide_resort') {
             $resort_title = $filter['meta_value'];
-
-            // Get resort ID by title
             $resort_post = get_page_by_title($resort_title, OBJECT, 'cpt_resort');
             if ($resort_post) {
                 $resort_id = $resort_post->ID;
