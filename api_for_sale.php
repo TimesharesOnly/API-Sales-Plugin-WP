@@ -245,6 +245,8 @@ $meta_fields = array(
     'fave_pointsf5da86e6a028dc',
     'fave_use-year',
     'fave_seller-notes',
+    'fave_banked-points',
+    'fave_kitchen',
     'fide_resort',
     'fave_property_address',
     'fave_property_bedrooms',
